@@ -1,4 +1,8 @@
+# Ignore mac files
 .DS_Store
+
+#Ignore checkpoints
+/notebooks/.ipynb_checkpoints
 
 #Ignore models in the folder
 models/
