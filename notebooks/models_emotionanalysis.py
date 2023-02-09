@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[6]:
+# In[1]:
 
 
 #importing required libraries
@@ -11,24 +11,23 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import time
 import pickle
-import torch
 import itertools
 import os
 
 
-# In[7]:
+# In[2]:
 
 
-df = pd.read_pickle('../data/raw/merged_training.pkl')
+df = pd.read_pickle('../data/raw/emotions_training.pkl')
 
 
-# In[8]:
+# In[3]:
 
 
 df=df.reset_index()
 
 
-# In[9]:
+# In[4]:
 
 
 #Defining class for each emotion
@@ -36,26 +35,26 @@ df['labels'] = df['emotions'].factorize()[0]
 df.head()
 
 
-# In[10]:
+# In[5]:
 
 
 uniquevalues = pd.unique(df[['emotions']].values.ravel())
-df_unique=pd.DataFrame(uniquevalues,columns=['Emotion'])
+df_unique=pd.DataFrame(uniquevalues,columns=['emotion'])
 
 
-# In[11]:
+# In[6]:
 
 
 df_unique
 
 
-# In[12]:
+# In[7]:
 
 
 df_unique.to_csv('../models/emotions.csv',index=False)
 
 
-# In[23]:
+# In[1]:
 
 
 #importing libraries for models and nlp tasks
@@ -77,19 +76,19 @@ from sklearn.model_selection import GridSearchCV
 
 # ### TF-IDF Vectorization for models
 
-# In[24]:
+# In[13]:
 
 
 tfidf_vectorizer = TfidfVectorizer()
 
 
-# In[25]:
+# In[10]:
 
 
 y =df['labels']
 
 
-# In[26]:
+# In[14]:
 
 
 #Train test split of the data
@@ -98,10 +97,10 @@ Xtrain_tfidf = tfidf_vectorizer.fit_transform(Xtrain)
 Xtest_tfidf = tfidf_vectorizer.transform(Xtest)
 
 
-# In[5]:
+# In[15]:
 
 
-pickle.dump(tfidf, open('../models/tfidf_vect.pkl', 'wb'))
+pickle.dump(tfidf_vectorizer, open('../models/tfidf_vect.pkl', 'wb'))
 
 
 # ### Different models 
@@ -174,7 +173,7 @@ print(classification_report(ytest,ypred_lr_ovr, digits=3))
 pickle.dump(lr_ovr, open(working_directory+'/models/lr_ovr.pkl', 'wb'))
 
 
-# In[30]:
+# In[16]:
 
 
 #Logistic Regression with multinomial
@@ -182,16 +181,16 @@ lr_mn = LogisticRegression(multi_class='multinomial', solver='lbfgs')
 lr_mn.fit(Xtrain_tfidf, ytrain)
 
 
-# In[31]:
+# In[17]:
 
 
 ypred_lr_mn=lr_mn.predict(Xtest_tfidf)
 
 
-# In[32]:
+# In[19]:
 
 
-tr_acc_lr_mn = lr_ovr.score(Xtrain_tfidf, ytrain)*100
+tr_acc_lr_mn = lr_mn.score(Xtrain_tfidf, ytrain)*100
 test_acc_lr_mn =  accuracy_score(ytest,ypred_lr_mn) * 100
 print(tr_acc_lr_mn,test_acc_lr_mn)
 
@@ -208,7 +207,7 @@ plt.xlabel('Predicted Values')
 plt.show()
 
 
-# In[34]:
+# In[20]:
 
 
 pickle.dump(lr_mn, open('../models/lr_mn.pkl', 'wb'))
@@ -247,7 +246,7 @@ print(tr_acc_rf,test_acc_rf)
 # In[155]:
 
 
-pickle.dump(rf, open('../models/rf_Basic.pkl', 'wb'))
+pickle.dump(rf, open('../models/rf_basic.pkl', 'wb'))
 
 
 # In[170]:
@@ -539,7 +538,7 @@ print(classification_report(ytest,ypred_xgb, digits=3))
 # In[74]:
 
 
-pickle.dump(xgb, open('../models/xgb_Basic.pkl', 'wb'))
+pickle.dump(xgb, open('../models/xgb_basic.pkl', 'wb'))
 
 
 # Tuning max_depth and min_child_weight

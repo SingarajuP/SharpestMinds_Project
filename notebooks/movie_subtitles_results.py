@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 import pandas as pd
@@ -10,61 +10,61 @@ import re
 from string import punctuation 
 
 
-# In[2]:
-
-
-df=pd.read_csv("../data/raw/movies_meta.csv")
-
-
 # In[3]:
 
 
-df.head()
+df=pd.read_csv("../data/raw/movies_titles.csv")
 
 
 # In[4]:
 
 
-df.shape
-
-
-# In[37]:
-
-
-df.title.to_csv('../models/Titles.csv',index=False, header=False)
+df.head()
 
 
 # In[5]:
 
 
-df_sub=pd.read_csv("../data/raw/movies_subtitles.csv")
+df.shape
+
+
+# In[3]:
+
+
+df.title.to_csv('../models/titles.csv',index=False, header=False)
 
 
 # In[6]:
 
 
-df_sub.shape
+df_sub=pd.read_csv("../data/raw/movies_subtitles.csv")
 
 
 # In[7]:
 
 
-df_sub.head()
+df_sub.shape
 
 
 # In[8]:
 
 
+df_sub.head()
+
+
+# In[9]:
+
+
 df_sub.groupby(['imdb_id']).count()
 
 
-# In[14]:
+# In[10]:
 
 
 df['title'][199]
 
 
-# In[38]:
+# In[11]:
 
 
 imdb=df.loc[df['title'] == "Harry Potter and the Philosopher's Stone"]['imdb_id']
@@ -74,22 +74,22 @@ imdb
 # In[12]:
 
 
-imdb[0]
+imdb[747]
 
 
-# In[41]:
+# In[13]:
 
 
 df_t=df_sub.loc[df_sub['imdb_id']==imdb[747]]
 
 
-# In[42]:
+# In[14]:
 
 
 df_t
 
 
-# In[18]:
+# In[15]:
 
 
 import nltk
@@ -100,7 +100,7 @@ from nltk.tokenize import sent_tokenize,word_tokenize
 from nltk.corpus import stopwords
 
 
-# In[19]:
+# In[16]:
 
 
 def text_cleaning(text):
@@ -124,25 +124,25 @@ def text_cleaning(text):
     return text 
 
 
-# In[43]:
+# In[17]:
 
 
 df_t['cleaned_text'] = df_t['text'].apply(lambda x: text_cleaning(x))
 
 
-# In[44]:
+# In[18]:
 
 
 df_t
 
 
-# In[55]:
+# In[19]:
 
 
-df_t['cleaned_text'].to_csv("../data/processed/cleaned_text.csv", index=False, header=False)
+#df_t['cleaned_text'].to_csv("../data/processed/cleaned_text.csv", index=False, header=False)
 
 
-# In[22]:
+# In[20]:
 
 
 import pandas as pd
@@ -156,7 +156,7 @@ import os
 import csv
 
 
-# In[23]:
+# In[21]:
 
 
 #importing libraries for models and nlp tasks
@@ -175,71 +175,71 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 
 
-# In[24]:
+# In[22]:
 
 
 tfidf_vectorizer=pickle.load(open('../models/tfidf_vect.pkl','rb'))
 
 
-# In[45]:
+# In[23]:
 
 
 test_tfidf = tfidf_vectorizer.transform(df_t['cleaned_text'])
 
 
-# In[46]:
+# In[24]:
 
 
 test_model_lr=pickle.load(open('../models/lr_mn.pkl','rb'))
 
 
-# In[47]:
+# In[25]:
 
 
 ytest_pred=test_model_lr.predict(test_tfidf)
 ytest_pred
 
 
-# In[48]:
+# In[26]:
 
 
-df_t['Predicted_label']=ytest_pred
+df_t['predicted_label']=ytest_pred
 
 
-# In[49]:
+# In[27]:
 
 
 df_t
 
 
-# In[30]:
+# In[28]:
 
 
-df_t['Predicted_label']
+df_t['predicted_label']
 
 
-# In[31]:
+# In[29]:
 
 
 emotion = pd.read_csv('../models/emotions.csv')
 
 
-# In[32]:
+# In[30]:
 
 
 dic_emotions=emotion.to_dict('series')
 
 
-# In[33]:
+# In[31]:
 
 
-dic_emotions['Emotion']
+dic_emotions['emotion']
 
 
-# In[50]:
+# In[32]:
 
 
-df_t['Predicted_emotion'] = df_t['Predicted_label'].map(dic_emotions['Emotion'])
+df_t['predicted_emotion'] = df_t['predicted_label'].map(dic_emotions['emotion'])
 
 
 # In[33]:
@@ -251,7 +251,7 @@ df_t # Toy story
 # In[34]:
 
 
-df_t.groupby(['Predicted_emotion']).count() # 83% of data is joy
+df_t.groupby(['predicted_emotion']).count() # 83% of data is joy
 
 
 # In[35]:
@@ -263,19 +263,19 @@ df_t # For Return of the Jedi
 # In[36]:
 
 
-df_t.groupby(['Predicted_emotion']).count() #74.5% of data is joy
+df_t.groupby(['predicted_emotion']).count() #74.5% of data is joy
 
 
-# In[51]:
+# In[33]:
 
 
 df_t #Harry potter 1
 
 
-# In[52]:
+# In[34]:
 
 
-df_t.groupby(['Predicted_emotion']).count() #70% of the data for joy
+df_t.groupby(['predicted_emotion']).count() #70% of the data for joy
 
 
 # In[ ]:
