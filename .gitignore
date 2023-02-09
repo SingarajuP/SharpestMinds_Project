@@ -5,5 +5,10 @@
 /notebooks/.ipynb_checkpoints
 
 #Ignore models in the folder
-models/
-data/raw/
+models/knn.pkl
+models/rf_basic.pkl
+models/rf_hp.pkl
+models/svm.pkl
+
+data/raw/emotions_training.pkl
+data/raw/movies_subtitles.csv
