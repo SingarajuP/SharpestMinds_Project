@@ -1,5 +1,14 @@
-#Ignore Mac system files
-.DS_store
+# Ignore mac files
+.DS_Store
+
+#Ignore checkpoints
+/notebooks/.ipynb_checkpoints
 
 #Ignore models in the folder
-https://drive.google.com/drive/folders/1jmSVF-PuWZd1W1kHmZ0mhea1H2iZADix?usp=sharing
+models/knn.pkl
+models/rf_basic.pkl
+models/rf_hp.pkl
+models/svm.pkl
+
+data/raw/emotions_training.pkl
+data/raw/movies_subtitles.csv
