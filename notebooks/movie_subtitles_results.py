@@ -178,7 +178,7 @@ from sklearn.model_selection import GridSearchCV
 # In[22]:
 
 
-tfidf_vectorizer=pickle.load(open('../models/tfidf_vect.pkl','rb'))
+tfidf_vectorizer=pickle.load(open('../tfidfvectors/tfidf_vect.pkl','rb'))
 
 
 # In[23]:
@@ -221,7 +221,7 @@ df_t['predicted_label']
 # In[29]:
 
 
-emotion = pd.read_csv('../models/emotions.csv')
+emotion = pd.read_csv('../labels_prediction/emotions.csv')
 
 
 # In[30]:

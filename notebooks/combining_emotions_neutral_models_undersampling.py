@@ -139,7 +139,7 @@ df_unique
 # In[17]:
 
 
-df_unique.to_csv('../models/emotions_neutral.csv',index=False)
+df_unique.to_csv('../labels_prediction/emotions_neutral.csv',index=False)
 
 
 # #### Undersampling the data
@@ -197,7 +197,7 @@ Xtest_tfidf = tfidf_vectorizer.transform(Xtest)
 # In[35]:
 
 
-with open('../models/tfidf_vect_neutral.pkl', 'wb') as file:  
+with open('../tfidfvectors/tfidf_vect_neutral.pkl', 'wb') as file:  
     pickle.dump(tfidf_vectorizer, file) 
 
 

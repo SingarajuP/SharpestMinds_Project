@@ -51,10 +51,10 @@ df_unique
 # In[7]:
 
 
-df_unique.to_csv('../models/emotions.csv',index=False)
+df_unique.to_csv('../labels_prediction/emotions.csv',index=False)
 
 
-# In[1]:
+# In[7]:
 
 
 #importing libraries for models and nlp tasks
@@ -76,19 +76,19 @@ from sklearn.model_selection import GridSearchCV
 
 # ### TF-IDF Vectorization for models
 
-# In[13]:
+# In[8]:
 
 
 tfidf_vectorizer = TfidfVectorizer()
 
 
-# In[10]:
+# In[9]:
 
 
 y =df['labels']
 
 
-# In[14]:
+# In[10]:
 
 
 #Train test split of the data
@@ -100,7 +100,7 @@ Xtest_tfidf = tfidf_vectorizer.transform(Xtest)
 # In[15]:
 
 
-pickle.dump(tfidf_vectorizer, open('../models/tfidf_vect.pkl', 'wb'))
+pickle.dump(tfidf_vectorizer, open('../tfidfvectors/tfidf_vect.pkl', 'wb'))
 
 
 # ### Different models 
@@ -121,7 +121,7 @@ pickle.dump(tfidf_vectorizer, open('../models/tfidf_vect.pkl', 'wb'))
 
 # ##### Logistic Regression
 
-# In[27]:
+# In[11]:
 
 
 #Logistic Regression with One vs Rest
@@ -129,7 +129,7 @@ lr_ovr = LogisticRegression(multi_class='ovr', solver='liblinear')
 lr_ovr.fit(Xtrain_tfidf, ytrain)
 
 
-# In[28]:
+# In[12]:
 
 
 ypred_lr_ovr=lr_ovr.predict(Xtest_tfidf)
@@ -141,7 +141,7 @@ ypred_lr_ovr=lr_ovr.predict(Xtest_tfidf)
 len(ypred_lr_ovr)
 
 
-# In[26]:
+# In[13]:
 
 
 tr_acc_lr_ovr = lr_ovr.score(Xtrain_tfidf, ytrain)*100
@@ -170,7 +170,7 @@ print(classification_report(ytest,ypred_lr_ovr, digits=3))
 # In[31]:
 
 
-pickle.dump(lr_ovr, open(working_directory+'/models/lr_ovr.pkl', 'wb'))
+pickle.dump(lr_ovr, open('../models/lr_ovr.pkl', 'wb'))
 
 
 # In[16]:

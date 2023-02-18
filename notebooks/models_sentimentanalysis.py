@@ -220,7 +220,7 @@ df_unique
 # In[29]:
 
 
-df_unique.to_csv('../models/sentiments.csv',index=False)
+df_unique.to_csv('../labels_prediction/sentiments.csv',index=False)
 
 
 # In[25]:
@@ -295,7 +295,7 @@ Xtest_tfidf = tfidf_vectorizer.transform(df_test['cleaned_text'])
 # In[33]:
 
 
-with open('../models/tfidf_vect_sentiment0.pkl', 'wb') as file:  
+with open('../tfidfvectors/tfidf_vect_sentiment0.pkl', 'wb') as file:  
     pickle.dump(tfidf_vectorizer, file) 
 
 
@@ -353,7 +353,7 @@ Xtest_tfidf = tfidf_vectorizer.transform(df_test['cleaned_text'])
 # In[44]:
 
 
-with open('../models/tfidf_vect_sentiment1.pkl', 'wb') as file:  
+with open('../tfidfvectors/tfidf_vect_sentiment1.pkl', 'wb') as file:  
     pickle.dump(tfidf_vectorizer, file) 
 
 

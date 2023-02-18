@@ -41,32 +41,23 @@ from sklearn.model_selection import GridSearchCV
 # In[3]:
 
 
-tfidf_vectorizer=pickle.load(open('../tfidfvectors/tfidf_vect.pkl','rb'))
-tfidf_vectorizer_under=pickle.load(open('../tfidfvectors/tfidf_vect_undersampling.pkl','rb'))
-tfidf_vectorizer_imb=pickle.load(open('../tfidfvectors/tfidf_vect_imb.pkl','rb'))
-tfidf_vectorizer_cw=pickle.load(open('../tfidfvectors/tfidf_vect_classweights.pkl','rb'))
+tfidf_vectorizer=pickle.load(open('../tfidfvectors/tfidf_vect_clean.pkl','rb'))
 
 
 # In[4]:
 
 
-test_model_lr=pickle.load(open('../models/lr_mn.pkl','rb'))
-test_model_lr_under=pickle.load(open('../models/lr_mn_neutral.pkl','rb'))
-test_model_lr_imb=pickle.load(open('../models/lr_mn_imb.pkl','rb'))
-test_model_lr_cw=pickle.load(open('../models/lr_mn_classweights.pkl','rb'))
+test_model_lr_imb=pickle.load(open('../models/lr_mn_clean.pkl','rb'))
+test_model_lr_cw=pickle.load(open('../models/lr_mn_clean_cw.pkl','rb'))
 
 
 # In[5]:
 
 
 emotion = pd.read_csv('../labels_prediction/emotions.csv')
-emotion_neutral = pd.read_csv('../labels_prediction/emotions_neutral.csv')
-
 dic_emotions=emotion.to_dict('series')
-dic_emotions_neutral=emotion_neutral.to_dict('series')
 
 print(dic_emotions['emotion'])
-print(dic_emotions_neutral['emotion'])
 
 
 # #### Webscraping goodreads website for getting reviews of a book
@@ -109,7 +100,7 @@ for x in rev_soup.find_all("section", {"class": "ReviewText"}):
     rev_list.append(x.text)
 
 
-# In[24]:
+# In[9]:
 
 
 df=pd.DataFrame(rev_list, columns=['reviews'])
@@ -118,7 +109,7 @@ df
 
 # ##### From all the languages in the reviews, selecting the english language reviews
 
-# In[25]:
+# In[10]:
 
 
 def detect_en(text):
@@ -128,7 +119,7 @@ def detect_en(text):
         return False
 
 
-# In[26]:
+# In[11]:
 
 
 df = df[df['reviews'].apply(detect_en)]
@@ -176,14 +167,14 @@ def text_cleaning(text):
     return text 
 
 
-# In[27]:
+# In[14]:
 
 
 df['cleaned_review'] = df['reviews'].apply(lambda x: text_cleaning(x))
 df = df[df['cleaned_review'].map(len) > 0]
 
 
-# In[28]:
+# In[15]:
 
 
 df
@@ -195,21 +186,14 @@ df
 
 
 test_tfidf = tfidf_vectorizer.transform(df['cleaned_review'])
-test_tfidf_under = tfidf_vectorizer_under.transform(df['cleaned_review'])
-test_tfidf_imb = tfidf_vectorizer_imb.transform(df['cleaned_review'])
-test_tfidf_cw = tfidf_vectorizer_cw.transform(df['cleaned_review'])
 
-ytest_pred=test_model_lr.predict(test_tfidf)
-ytest_pred_under=test_model_lr_under.predict(test_tfidf_under)
-ytest_pred_imb=test_model_lr_imb.predict(test_tfidf_imb)
-ytest_pred_cw=test_model_lr_cw.predict(test_tfidf_cw)
+ytest_pred_imb=test_model_lr_imb.predict(test_tfidf)
+ytest_pred_cw=test_model_lr_cw.predict(test_tfidf)
 
 
 # In[17]:
 
 
-df['predicted_label']=ytest_pred
-df['predicted_label_under']=ytest_pred_under
 df['predicted_label_imb']=ytest_pred_imb
 df['predicted_label_cw']=ytest_pred_cw
 
@@ -217,10 +201,8 @@ df['predicted_label_cw']=ytest_pred_cw
 # In[18]:
 
 
-df['predicted_emotion'] = df['predicted_label'].map(dic_emotions['emotion'])
-df['predicted_emotion_under'] = df['predicted_label_under'].map(dic_emotions_neutral['emotion'])
-df['predicted_emotion_imb'] = df['predicted_label_imb'].map(dic_emotions_neutral['emotion'])
-df['predicted_emotion_cw'] = df['predicted_label_cw'].map(dic_emotions_neutral['emotion'])
+df['predicted_emotion_imb'] = df['predicted_label_imb'].map(dic_emotions['emotion'])
+df['predicted_emotion_cw'] = df['predicted_label_cw'].map(dic_emotions['emotion'])
 
 
 # In[19]:
@@ -229,85 +211,76 @@ df['predicted_emotion_cw'] = df['predicted_label_cw'].map(dic_emotions_neutral['
 df
 
 
-# In[19]:
+# In[20]:
 
 
-df['reviews'][4] # predictions joy, neutral, love
+df.groupby(['predicted_emotion_imb']).count() 
 
 
 # In[21]:
 
 
-df['reviews'][7] # sadness from 3 models
+df.groupby(['predicted_emotion_cw']).count() 
 
 
-# In[23]:
+# In[20]:
 
 
-df['reviews'][8] # joy and surprise
+df['cleaned_review'][0]
 
 
-# In[39]:
+# In[21]:
 
 
-df['reviews'][9] # love from one model and neutral from 3 models
-
-
-# In[40]:
-
-
-df['reviews'][12] # anger from one model and neutral from 3 models
+df['reviews'][0]
 
 
 # In[22]:
 
 
-df['reviews'][13]
+df['reviews'][6]
 
 
-# In[24]:
+# In[23]:
 
 
-df['reviews'][14] # joy and surprise: joy for imbalanced models and surprise for undersampled and classweights
-
-
-# In[26]:
-
-
-df['reviews'][17] # All surprise
+df['cleaned_review'][6]
 
 
 # Predict probabilities
 
-# In[29]:
+# In[16]:
 
 
 test_tfidf = tfidf_vectorizer.transform(df['cleaned_review'])
-test_tfidf_under = tfidf_vectorizer_under.transform(df['cleaned_review'])
-test_tfidf_imb = tfidf_vectorizer_imb.transform(df['cleaned_review'])
-test_tfidf_cw = tfidf_vectorizer_cw.transform(df['cleaned_review'])
 
 
-# In[30]:
+# In[17]:
 
 
-ytest_pred=test_model_lr.predict_proba(test_tfidf)
-ytest_pred_under=test_model_lr_under.predict_proba(test_tfidf_under)
-ytest_pred_imb=test_model_lr_imb.predict_proba(test_tfidf_imb)
-ytest_pred_cw=test_model_lr_cw.predict_proba(test_tfidf_cw)
+ytest_pred_imb_prob=test_model_lr_imb.predict_proba(test_tfidf)
+ytest_pred_cw_prob=test_model_lr_cw.predict_proba(test_tfidf)
 
 
-# In[39]:
+# In[18]:
 
 
-df_res = pd.DataFrame(ytest_pred, columns = ['sadness','joy','love','anger','fear','surprise'])
+df_imb = pd.DataFrame(ytest_pred_imb_prob, columns = ['sadness','joy','love','anger','fear','surprise'])
+df_cw = pd.DataFrame(ytest_pred_cw_prob, columns = ['sadness','joy','love','anger','fear','surprise'])
 
 
-# In[40]:
+# In[21]:
 
 
-df_comb=pd.concat([df,df_res],axis=1)
-df_comb
+df_comb_imb=pd.concat([df,df_imb],axis=1)
+df_comb_imb
+
+
+# In[22]:
+
+
+df_comb_cw=pd.concat([df,df_cw],axis=1)
+df_comb_cw
 
 
 # In[ ]:
