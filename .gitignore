@@ -12,3 +12,5 @@ models/svm.pkl
 
 data/raw/emotions_training.pkl
 data/raw/movies_subtitles.csv
+data/processed/allemotions_raw_cleaned_data.csv
+data/processed/cleaned_text_neutral
