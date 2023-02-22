@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[1]:
 
 
 #Required python libraries
@@ -21,60 +21,29 @@ from nltk.tokenize import sent_tokenize,word_tokenize
 from nltk.corpus import stopwords
 
 
-# In[4]:
+# In[2]:
 
 
 df_6emotions = pd.read_pickle('../data/raw/emotions_training.pkl')
 df_senti=pd.read_csv("../data/raw/sentiments_training.csv", encoding= 'unicode_escape')
 
 
-# ##### There are three sentiments like positive,negative and neutral in the data for sentiment analysis.  As we need only the data having neutral label we need to separate it. 
-
-# In[5]:
-
-
-df_senti.head()
-
-
-# In[6]:
+# In[3]:
 
 
 df_neutral=df_senti[df_senti.sentiment=='neutral'][['text','sentiment']]
+df_neutral=df_neutral.rename(columns={'sentiment':'emotions'})
 df_neutral
 
 
-# In[7]:
-
-
-df_6emotions.head()
-
-
-# In[8]:
-
-
-df_neutral=df_neutral.rename(columns={'sentiment':'emotions'})
-
-
-# In[9]:
-
-
-df_neutral.head()
-
-
-# In[10]:
+# In[4]:
 
 
 df=pd.concat([df_6emotions,df_neutral], ignore_index=True)
 df
 
 
-# In[11]:
-
-
-df=df.reset_index()
-
-
-# In[12]:
+# In[5]:
 
 
 def text_cleaning(text):
@@ -103,19 +72,32 @@ def text_cleaning(text):
     return text 
 
 
-# In[13]:
+# In[6]:
 
 
 df['cleaned_text'] = df['text'].apply(lambda x: text_cleaning(x))
 
 
-# In[22]:
+# In[7]:
 
 
-df['cleaned_text'].to_csv("../data/processed/cleaned_text_neutral.csv", index=False, header=False)
+df.shape
 
 
-# In[14]:
+# In[8]:
+
+
+df=df[df['cleaned_text'].map(len) > 0]
+df.shape
+
+
+# In[9]:
+
+
+#df.to_csv("../data/processed/allemotions_raw_cleaned_data.csv", index=False, header=False)
+
+
+# In[9]:
 
 
 #Defining class for each emotion
@@ -123,35 +105,20 @@ df['labels'] = df['emotions'].factorize()[0]
 df.head()
 
 
-# In[15]:
+# In[11]:
 
 
 uniquevalues = pd.unique(df[['emotions']].values.ravel())
 df_unique=pd.DataFrame(uniquevalues,columns=['emotion'])
 
 
-# In[16]:
+# In[12]:
 
 
 df_unique
 
 
-# In[17]:
-
-
-df_unique.to_csv('../models/emotions_neutral.csv',index=False)
-
-
-# #### Undersampling the data
-
-# In[18]:
-
-
-import imblearn
-from imblearn.under_sampling import RandomUnderSampler
-
-
-# In[31]:
+# In[10]:
 
 
 #importing libraries for models and nlp tasks
@@ -171,224 +138,82 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 
 from sklearn import utils
+from sklearn.utils.class_weight import compute_class_weight
 
 
-# In[20]:
+# In[11]:
 
 
 tfidf_vectorizer = TfidfVectorizer()
 
 
-# In[21]:
+# In[12]:
 
 
 y =df['labels']
 
 
-# In[22]:
+# In[14]:
 
 
 #Train test split of the data
-Xtrain, Xtest, ytrain, ytest = train_test_split(df['cleaned_text'], y, test_size=0.3,random_state=1)
+Xtrain, Xtest, ytrain, ytest = train_test_split(df['cleaned_text'], y, test_size=0.3,random_state=1,stratify=y)
 Xtrain_tfidf = tfidf_vectorizer.fit_transform(Xtrain)
 Xtest_tfidf = tfidf_vectorizer.transform(Xtest)
 
 
-# In[35]:
+# In[15]:
 
 
-with open('../models/tfidf_vect_neutral.pkl', 'wb') as file:  
-    pickle.dump(tfidf_vectorizer, file) 
+pickle.dump(tfidf_vectorizer, open('../tfidfvectors/tfidf_vect_imb.pkl', 'wb'))
 
 
-# ##### Taking equal number of samples in test data also
-
-# In[23]:
-
-
-#Train test split of the data
-Xtrain, Xtest, ytrain, ytest = train_test_split(df['cleaned_text'], y, test_size=0.3,random_state=1)
-Xtrain_tfidf = tfidf_vectorizer.fit_transform(Xtrain)
-
-
-# In[27]:
-
-
-#ytest.value_counts()
-type(ytest)
-
-
-# In[28]:
-
-
-df_test= pd.concat([Xtest, ytest], axis=1)
-
-
-# In[34]:
-
-
-df_test.head()
-
-
-# In[30]:
-
-
-df_test.labels.value_counts()
-
-
-# In[32]:
-
-
-df_test=utils.shuffle(df_test.groupby("labels").head(3305))
-
-
-# In[33]:
-
-
-df_test.labels.value_counts()
-
-
-# In[35]:
-
-
-Xtest_bal=df_test['cleaned_text']
-ytest_bal=df_test['labels']
-
-
-# In[36]:
-
-
-Xtest_bal_tfidf = tfidf_vectorizer.transform(Xtest_bal)
-
-
-# In[ ]:
-
-
-
-
-
-# ##### For undersampling the data, the text data has to be vectorized, otherwise getting an error. Hence, the data has been split into train and test and applied tfidf vectorization.
-
-# In[37]:
-
-
-undersample = RandomUnderSampler()
-X_under, y_under = undersample.fit_resample(Xtrain_tfidf, ytrain)
-
-
-# #### Models
 # ##### Logistic Regression
 
-# In[38]:
+# In[16]:
 
 
 #Logistic Regression with multinomial
 lr_mn = LogisticRegression(multi_class='multinomial', solver='lbfgs')
-lr_mn.fit(X_under, y_under)
+lr_mn.fit(Xtrain_tfidf, ytrain)
 
 
-# In[39]:
+# In[17]:
 
 
 ypred_lr_mn=lr_mn.predict(Xtest_tfidf)
 
 
-# In[40]:
+# In[18]:
 
 
-tr_acc_lr_mn = lr_mn.score(X_under, y_under)*100
+tr_acc_lr_mn = lr_mn.score(Xtrain_tfidf, ytrain)*100
 test_acc_lr_mn =  accuracy_score(ytest,ypred_lr_mn) * 100
 print(tr_acc_lr_mn,test_acc_lr_mn)
 
 
-# In[51]:
+# In[23]:
 
 
-pickle.dump(lr_mn, open('../models/lr_neutral.pkl', 'wb'))
+cm = confusion_matrix(ytest, ypred_lr_mn)
+plt.figure(figsize=(10,8))
+sns.heatmap(cm, annot=True,fmt='g')
+plt.title('Confusion Matrix')
+plt.ylabel('Actal Values')
+plt.xlabel('Predicted Values')
+plt.show()
 
 
-# In[43]:
+# In[19]:
 
 
-#Logistic Regression with One vs Rest
-lr_ovr = LogisticRegression(multi_class='ovr', solver='liblinear')
-lr_ovr.fit(X_under, y_under)
+print(classification_report(ytest,ypred_lr_mn, digits=3))
 
 
-# In[44]:
+# In[20]:
 
 
-ypred_lr_ovr=lr_ovr.predict(Xtest_tfidf)
-
-
-# In[45]:
-
-
-tr_acc_lr_ovr = lr_ovr.score(X_under, y_under)*100
-test_acc_lr_ovr =  accuracy_score(ytest,ypred_lr_ovr) * 100
-print(tr_acc_lr_ovr,test_acc_lr_ovr)
-
-
-# In[52]:
-
-
-pickle.dump(lr_ovr, open('../models/lr_ovr_neutral.pkl', 'wb'))
-
-
-# For balanced test data:
-
-# In[41]:
-
-
-ypred_lr_mn=lr_mn.predict(Xtest_bal_tfidf)
-
-
-# In[42]:
-
-
-test_acc_lr_mn =  accuracy_score(ytest_bal,ypred_lr_mn) * 100
-print(tr_acc_lr_mn,test_acc_lr_mn)
-
-
-# In[ ]:
-
-
-
-
-
-# ##### SVM
-
-# In[46]:
-
-
-svm = SVC( kernel ='linear',C = 1, decision_function_shape='ovo')
-svm.fit(X_under, y_under)
-
-
-# In[47]:
-
-
-ypred_svm=svm.predict(Xtest_tfidf)
-
-
-# In[48]:
-
-
-tr_acc_svm = svm.score(X_under, y_under)*100
-test_acc_svm =  accuracy_score(ytest,ypred_svm) * 100
-print(tr_acc_svm,test_acc_svm)
-
-
-# In[49]:
-
-
-pickle.dump(svm, open('../models/svm_neutral.pkl', 'wb'))
-
-
-# In[ ]:
-
-
-
+pickle.dump(lr_mn, open('../models/lr_mn_imb.pkl', 'wb'))
 
 
 # In[ ]:

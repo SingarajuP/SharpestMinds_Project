@@ -9,8 +9,13 @@ models/knn.pkl
 models/rf_basic.pkl
 models/rf_hp.pkl
 models/svm.pkl
+models/knn_sentiment_bert.pkl
+models/svm_neutral.pkl
+models/svm_sentiment_bert.pkl
 
 data/raw/emotions_training.pkl
+data/raw/go_emotions_dataset.csv
 data/raw/movies_subtitles.csv
 data/processed/allemotions_raw_cleaned_data.csv
 data/processed/cleaned_text_neutral
+data/processed/emotions_neutral_raw_cleaned_data.csv

@@ -4,9 +4,8 @@
 # In[1]:
 
 
-#Required python libraries
-import pandas as pd
 import numpy as np
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import time
@@ -24,26 +23,59 @@ from nltk.corpus import stopwords
 # In[2]:
 
 
-df_6emotions = pd.read_pickle('../data/raw/emotions_training.pkl')
-df_senti=pd.read_csv("../data/raw/sentiments_training.csv", encoding= 'unicode_escape')
+dfn=pd.read_csv('../data/raw/go_emotions_dataset.csv')
+dfe = pd.read_pickle('../data/raw/emotions_training.pkl')
 
 
 # In[3]:
 
 
-df_neutral=df_senti[df_senti.sentiment=='neutral'][['text','sentiment']]
-df_neutral=df_neutral.rename(columns={'sentiment':'emotions'})
-df_neutral
+dfn=dfn[['text','neutral']]
 
 
 # In[4]:
 
 
-df=pd.concat([df_6emotions,df_neutral], ignore_index=True)
-df
+dfn=dfn[dfn.neutral==1]
 
 
 # In[5]:
+
+
+mapp={1:'neutral'}
+dfn['neutral']=dfn['neutral'].map(mapp)
+dfn=dfn.rename(columns={'neutral':'emotions'})
+
+dfn
+
+
+# In[42]:
+
+
+dfn['text'][12]
+
+
+# In[6]:
+
+
+dfe
+
+
+# In[7]:
+
+
+df=pd.concat([dfe,dfn], ignore_index=True)
+df=df.reset_index()
+df
+
+
+# In[8]:
+
+
+df['cleaned_text'] = df['text'].replace(r'http\S+', '', regex=True).replace(r'www\S+', '', regex=True)
+
+
+# In[9]:
 
 
 def text_cleaning(text):
@@ -72,53 +104,53 @@ def text_cleaning(text):
     return text 
 
 
-# In[6]:
+# In[10]:
 
 
-df['cleaned_text'] = df['text'].apply(lambda x: text_cleaning(x))
+df['cleaned_text'] = df['cleaned_text'].apply(lambda x: text_cleaning(x))
 
 
-# In[7]:
+# In[11]:
+
+
+df.to_csv("../data/processed/emotions_neutral_raw_cleaned_data.csv", index=False, header=False)
+
+
+# In[12]:
 
 
 df.shape
 
 
-# In[7]:
+# In[13]:
 
 
 df=df[df['cleaned_text'].map(len) > 0]
 df.shape
 
 
-# In[9]:
+# In[15]:
 
 
-df.to_csv("../data/processed/allemotions_raw_cleaned_data.csv", index=False, header=False)
-
-
-# In[8]:
-
-
-#Defining class for each emotion
 df['labels'] = df['emotions'].factorize()[0]
 df.head()
 
 
-# In[9]:
+# In[16]:
 
 
 uniquevalues = pd.unique(df[['emotions']].values.ravel())
 df_unique=pd.DataFrame(uniquevalues,columns=['emotion'])
-
-
-# In[10]:
-
-
 df_unique
 
 
-# In[11]:
+# In[17]:
+
+
+df_unique.to_csv('../labels_prediction/emotions_googleneutral.csv',index=False)
+
+
+# In[18]:
 
 
 #importing libraries for models and nlp tasks
@@ -141,65 +173,47 @@ from sklearn import utils
 from sklearn.utils.class_weight import compute_class_weight
 
 
-# In[12]:
+# In[19]:
 
 
 tfidf_vectorizer = TfidfVectorizer()
 
 
-# In[13]:
+# In[20]:
 
 
-y =df['labels']
+y=df['labels']
 
 
-# In[14]:
+# In[21]:
 
 
-#Train test split of the data
 Xtrain, Xtest, ytrain, ytest = train_test_split(df['cleaned_text'], y, test_size=0.3,random_state=1,stratify=y)
 Xtrain_tfidf = tfidf_vectorizer.fit_transform(Xtrain)
 Xtest_tfidf = tfidf_vectorizer.transform(Xtest)
 
 
-# In[43]:
+# In[35]:
 
 
-pickle.dump(tfidf_vectorizer, open('../tfidfvectors/tfidf_vect_classweights.pkl', 'wb'))
+with open('../tfidfvectors/tfidf_vect_emogoneutral.pkl', 'wb') as file:  
+    pickle.dump(tfidf_vectorizer, file) 
 
 
-# ##### Calculating class weights
-
-# In[15]:
+# In[22]:
 
 
-weighting = compute_class_weight( class_weight ='balanced', classes =np.unique(y),y= y)
-print(weighting)
-
-
-# In[16]:
-
-
-class_weights = dict(zip(np.unique(y), weighting))
-
-
-# ##### Logistic Regression
-
-# In[17]:
-
-
-#Logistic Regression with multinomial
-lr_mn = LogisticRegression(multi_class='multinomial', solver='lbfgs', class_weight=class_weights)
+lr_mn = LogisticRegression(multi_class='multinomial', solver='lbfgs')
 lr_mn.fit(Xtrain_tfidf, ytrain)
 
 
-# In[18]:
+# In[23]:
 
 
 ypred_lr_mn=lr_mn.predict(Xtest_tfidf)
 
 
-# In[19]:
+# In[24]:
 
 
 tr_acc_lr_mn = lr_mn.score(Xtrain_tfidf, ytrain)*100
@@ -207,28 +221,68 @@ test_acc_lr_mn =  accuracy_score(ytest,ypred_lr_mn) * 100
 print(tr_acc_lr_mn,test_acc_lr_mn)
 
 
-# In[20]:
+# In[25]:
 
 
 cm = confusion_matrix(ytest, ypred_lr_mn)
 plt.figure(figsize=(10,8))
 sns.heatmap(cm, annot=True,fmt='g')
 plt.title('Confusion Matrix')
-plt.ylabel('Actual Values')
+plt.ylabel('Actal Values')
 plt.xlabel('Predicted Values')
 plt.show()
 
 
-# In[42]:
+# In[26]:
 
 
 print(classification_report(ytest,ypred_lr_mn, digits=3))
 
 
-# In[44]:
+# In[27]:
 
 
-pickle.dump(lr_mn, open('../models/lr_mn_classweights.pkl', 'wb'))
+pickle.dump(lr_mn, open('../models/lr_mn_emogoneutral.pkl', 'wb'))
+
+
+# In[28]:
+
+
+weighting = compute_class_weight( class_weight ='balanced', classes =np.unique(y),y= y)
+class_weights = dict(zip(np.unique(y), weighting))
+
+
+# In[29]:
+
+
+lr_mn_cw = LogisticRegression(multi_class='multinomial', solver='lbfgs', class_weight=class_weights)
+lr_mn_cw.fit(Xtrain_tfidf, ytrain)
+
+
+# In[30]:
+
+
+ypred_lr_mn_cw=lr_mn_cw.predict(Xtest_tfidf)
+
+
+# In[31]:
+
+
+tr_acc_lr_mn_cw = lr_mn_cw.score(Xtrain_tfidf, ytrain)*100
+test_acc_lr_mn_cw =  accuracy_score(ytest,ypred_lr_mn_cw) * 100
+print(tr_acc_lr_mn_cw,test_acc_lr_mn_cw)
+
+
+# In[32]:
+
+
+print(classification_report(ytest,ypred_lr_mn_cw, digits=3))
+
+
+# In[33]:
+
+
+pickle.dump(lr_mn_cw, open('../models/lr_mn_emogoneutral_cw.pkl', 'wb'))
 
 
 # In[ ]:

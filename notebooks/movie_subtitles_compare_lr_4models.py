@@ -61,10 +61,10 @@ df_sub=pd.read_csv("../data/raw/movies_subtitles.csv")
 # In[33]:
 
 
-tfidf_vectorizer=pickle.load(open('../models/tfidf_vect.pkl','rb'))
-tfidf_vectorizer_under=pickle.load(open('../models/tfidf_vect_undersampling.pkl','rb'))
-tfidf_vectorizer_imb=pickle.load(open('../models/tfidf_vect_imb.pkl','rb'))
-tfidf_vectorizer_cw=pickle.load(open('../models/tfidf_vect_classweights.pkl','rb'))
+tfidf_vectorizer=pickle.load(open('../tfidfvectors/tfidf_vect.pkl','rb'))
+tfidf_vectorizer_under=pickle.load(open('../tfidfvectors/tfidf_vect_undersampling.pkl','rb'))
+tfidf_vectorizer_imb=pickle.load(open('../tfidfvectors/tfidf_vect_imb.pkl','rb'))
+tfidf_vectorizer_cw=pickle.load(open('../tfidfvectors/tfidf_vect_classweights.pkl','rb'))
 
 
 # In[34]:
@@ -79,8 +79,8 @@ test_model_lr_cw=pickle.load(open('../models/lr_mn_classweights.pkl','rb'))
 # In[35]:
 
 
-emotion = pd.read_csv('../models/emotions.csv')
-emotion_neutral = pd.read_csv('../models/emotions_neutral.csv')
+emotion = pd.read_csv('../labels_prediction/emotions.csv')
+emotion_neutral = pd.read_csv('../labels_prediction/emotions_neutral.csv')
 
 dic_emotions=emotion.to_dict('series')
 dic_emotions_neutral=emotion_neutral.to_dict('series')
