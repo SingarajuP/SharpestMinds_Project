@@ -14,6 +14,33 @@ While there is no data for individual books or movie subtitles with labels for t
 
 ## Datasets
 
+## Usage
+Clone repo 
+```bash
+ git clone https://github.com/SingarajuP/sharpestminds-project.git
+```
+<br />Setup a virtual environment
+```bash
+conda create -n yourenvname python=3.10.4
+```
+<br />Activate the virtual environment
+
+```bash
+conda activate yourenvname
+```
+<br />Install all requirements using pip:
+```bash
+pip install -r requirements.txt
+```
+<br />To run web application stay in the main directory and run the command:
+```bash
+uvicorn main:app --reload 
+After this you get Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+open http://127.0.0.1:8000/docs in the browser
+```
+
+
+
 ## Practical Applications
 
 ## Milestones
