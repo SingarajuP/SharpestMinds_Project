@@ -1,16 +1,18 @@
 # SharpestMinds_Project
 
 ## Overview
-Reading books is a recreational activity. Based on the reviews for the selected book this app will show the percentage of emotions experienced by the customers who read the same book. 
+Reading books is a recreational activity. Based on the reviews for the selected book this app will show the percentage of emotions hidden behind the reviews by the customers who read the same book. 
 
 
 ## Background and Motivation
 
-The reader will go through different emotions while reading a book. The feedback given as a review is based on the emotions they feel. These reviews are helpful for a user who wants to read a book. By analyzing the reviews given by different customers, we want to capture the emotions triggered for the book and the percentage of emotions while the customers who read it before experienced. 
+The reader will go through different emotions while reading a book. The feedback given as a review is based on the emotions they feel. These reviews are helpful for a user who wants to read a book as the reviews will summarize, criticize, appreciate the book. By analyzing the reviews given by different customers, we want to capture the emotions triggered while reading the book for the customers.
 
-While there is no data for books with labels for the emotions, the approach we plan is to create a model for the labeled text data which is available from the huggingface/kaggle websites. 
+While there is no data for books with labels for the emotions, the approach we followed is to create a model for the labeled text data which is available from the huggingface/kaggle websites for emotions. We then applied the model to the test data obtained by using a library  Beautiful soup to parse the data from goodreads html webpage. 
 
 ## Goals
+- Build a classifier that predicts the emotions from the text
+- Build a web app to take the title from the user and give the percentage of emotions for the title from the reviews obtained from goodreads website
 
 ## Datasets
 
@@ -36,7 +38,9 @@ pip install -r requirements.txt
 ```bash
 uvicorn main:app --reload 
 After this you get Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-open http://127.0.0.1:8000/docs in the browser
+open http://127.0.0.1:8000 in the browser to get the html page
+open http://127.0.0.1:8000/docs in the browser to get the swagger docs web page
+
 ```
 
 
