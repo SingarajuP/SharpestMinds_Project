@@ -48,8 +48,7 @@ open http://127.0.0.1:8000/docs in the browser to get the swagger docs web page
 ## Practical Applications
 
 ## Milestones
-- Develop a web app to get analyze the emotions from the reviews of the book from goodreads website. Will take the input as a book title and returns the percentage of different emotions from the reviews
-- returning some of the reviews also along with the predictions in the result
+- Returning some of the reviews also along with the predictions in the result
 - Modify the entire code using classes
 
 
