@@ -1,4 +1,5 @@
 ''' functions to load files'''
+import pandas as pd
 import pickle
 from langdetect import detect
 from transformers import AutoTokenizer
@@ -6,6 +7,9 @@ from transformers import Trainer
 from transformers import AutoModelForSequenceClassification
 
 
+def load_data():
+    df = pd.read_pickle('./data/raw/emotions_training.pkl')
+    return df
 def detect_en(text):
     """This function takes text as input and returns the text if the
     language is english"""

@@ -5,6 +5,7 @@ from string import punctuation
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+import datasets
 import nltk
 import nltk.data
 from nltk.stem import WordNetLemmatizer
@@ -31,6 +32,7 @@ def get_reviews(title):
     for bookname in titles:
         title.append(bookname.get_text())
         link.append(bookname["href"])
+    first_book=title[0]
     rev = BASE_URL + link[0]
     start_time = time.time()
     rev_url = requests.get(rev, timeout=60)
@@ -41,7 +43,7 @@ def get_reviews(title):
     for x in rev_soup.find_all("section", {"class": "ReviewText"}):
         rev_list.append(x.text)
     df = pd.DataFrame(rev_list, columns=["reviews"])
-    return df
+    return first_book, df
 
 
 def text_cleaning(text):
@@ -67,6 +69,10 @@ def text_cleaning(text):
     text = text.lower()
     return text
 
+def dataset_dict_bert(data):
+    """This function returns the dataset dictionary format required for BERT model to the input data"""
+    dataset = datasets.Dataset.from_dict(data)
+    return datasets.DatasetDict({"test": dataset})
 
 def tokenize_data(example):
     """This function returns the tokenized vectors for bert model"""
