@@ -54,6 +54,7 @@ open http://127.0.0.1:8000/docs in the browser to get the swagger docs web page
 
 
 ## References
-https://www.analyticsvidhya.com/blog/2021/11/a-guide-to-building-an-end-to-end-multiclass-text-classification-model/
-https://medium.com/mlearning-ai/fine-tuning-bert-for-tweets-classification-ft-hugging-face-8afebadd5dbf
-https://eugeneyan.com/writing/how-to-set-up-html-app-with-fastapi-jinja-forms-templates/
+[multiclass classification](https://www.analyticsvidhya.com/blog/2021/11/a-guide-to-building-an-end-to-end-multiclass-text-classification-model/)
+[Finetuning BERT model](https://medium.com/mlearning-ai/fine-tuning-bert-for-tweets-classification-ft-hugging-face-8afebadd5dbf)
+[setting up html app with fastapi and jinja](https://eugeneyan.com/writing/how-to-set-up-html-app-with-fastapi-jinja-forms-templates/)
+
