@@ -3,6 +3,8 @@ import logging
 from src.preprocess import dataset_dict_bert, get_reviews, text_cleaning, tokenize_data
 from src.config import dic_emotions
 from src.utils import detect_en, labels, tfidf_vector
+from transformers import Trainer
+from typing import Tuple
 
 
 def classify_tfidf(title, tfidf_model):
@@ -28,12 +30,12 @@ def classify_tfidf(title, tfidf_model):
             data["predicted_emotion_tfidf"].value_counts(normalize=True) * 100).to_dict()
         percentage_emotions = {
         k: str(int(round(v, 0))) + "%" for k, v in percentage_emotions.items()}
-        logger = logging.getLogger()
-        logger.info("Length of the book title and type of the output for emotions:",len(book),type(percentage_emotions))
+        #logger = logging.getLogger()
+        #logger.info("Length of the book title and type of the output for emotions:",len(book),type(percentage_emotions))
         return book, percentage_emotions
 
 
-def classify_bert(title, trainer):
+def classify_bert(title:str, trainer:Trainer)->Tuple[str,dict]:
     """This function will use bert vectoriztion and bert finetuned model
     to return the emotions"""
     book, data = get_reviews(title)
