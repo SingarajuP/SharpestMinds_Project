@@ -1,4 +1,4 @@
-# SharpestMinds_Project
+# Goodreads Review Analyzer
 
 ## Overview
 Reading books is a recreational activity. Based on the reviews for the selected book this app will show the percentage of emotions hidden behind the reviews by the customers who read the same book. 
