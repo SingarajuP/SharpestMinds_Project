@@ -10,21 +10,22 @@ import datasets
 import nltk
 import nltk.data
 from nltk.stem import WordNetLemmatizer
-from src.config import BASE_URL, BOOK_URL
+from transformers import AutoTokenizer
+from src.config import BASE_URL, BOOK_URL,MAX_RETRY
 from src.utils import tokenizer
 from typing import Tuple
+logger=logging.getLogger()
 
-def get_reviews(title:str)->Tuple[str,pd.DataFrame]:
+def get_reviews(title : str) -> Tuple[str, pd.DataFrame]:
     """getting reviews from the book title as a dataframe"""
-    i=0
+    i = 0
     
     data = {"q": title}
     GOODREADS_URL = BOOK_URL
-    while i<=10:    
+    while i <= MAX_RETRY:    
         start_time = time.time()
         req = requests.get(GOODREADS_URL, params=data, timeout=60)
         request_time = time.time() - start_time
-        logger = logging.getLogger()
         logger.info("Time to get response for book title search from goodreads is :", request_time)
         book_soup = BeautifulSoup(req.text, "html.parser")
 
@@ -34,12 +35,12 @@ def get_reviews(title:str)->Tuple[str,pd.DataFrame]:
         for bookname in titles:
             title.append(bookname.get_text())
             link.append(bookname["href"])
-        first_book=title[0]
+        first_book = title[0]
         rev = BASE_URL + link[0]
         start_time = time.time()
         rev_url = requests.get(rev, timeout=200)
         request_time = time.time() - start_time
-        #print("Time to get response for reviews:", request_time)
+        logger.info("Time to get response for reviews:", request_time)
         rev_soup = BeautifulSoup(rev_url.content, "html.parser")
         rev_list = []
         for x in rev_soup.find_all("section", {"class": "ReviewText"}):
@@ -48,11 +49,11 @@ def get_reviews(title:str)->Tuple[str,pd.DataFrame]:
         if len(df)>0:
             return first_book,df
         else:
-            i+=1
+            i += 1
     return first_book, df
 
 
-def text_cleaning(text:str)->str:
+def text_cleaning(text : str) -> str:
     """This function will change the text to lower case, remove tags,
     special characters,digits, punctuation and lemmatization"""
 
@@ -75,12 +76,12 @@ def text_cleaning(text:str)->str:
     text = text.lower()
     return text
 
-def dataset_dict_bert(data:pd.DataFrame)->dict:
+def dataset_dict_bert(data : pd.DataFrame) -> dict:
     """This function returns the dataset dictionary format required for BERT model to the input data"""
     dataset = datasets.Dataset.from_dict(data)
     return datasets.DatasetDict({"test": dataset})
 
-def tokenize_data(example):
+def tokenize_data(example : pd.DataFrame) -> AutoTokenizer:
     """This function returns the tokenized vectors for bert model"""
 
     return tokenizer(example["reviews"], truncation=True, padding="max_length")

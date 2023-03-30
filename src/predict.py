@@ -12,9 +12,9 @@ def classify_tfidf(title, tfidf_model):
     to return the emotions"""
     tfidf_vectorizer = tfidf_vector()
     book, data = get_reviews(title)
-    book=book.strip()
-    if len(data)==0:
-        percentage_emotions={}
+    book = book.strip()
+    if len(data) == 0:
+        percentage_emotions = {}
         return book, percentage_emotions
     else:
         data = data[data["reviews"].apply(detect_en)]
@@ -30,18 +30,16 @@ def classify_tfidf(title, tfidf_model):
             data["predicted_emotion_tfidf"].value_counts(normalize=True) * 100).to_dict()
         percentage_emotions = {
         k: str(int(round(v, 0))) + "%" for k, v in percentage_emotions.items()}
-        #logger = logging.getLogger()
-        #logger.info("Length of the book title and type of the output for emotions:",len(book),type(percentage_emotions))
         return book, percentage_emotions
 
 
-def classify_bert(title:str, trainer:Trainer)->Tuple[str,dict]:
+def classify_bert(title : str, trainer : Trainer) -> Tuple[str, dict]:
     """This function will use bert vectoriztion and bert finetuned model
     to return the emotions"""
     book, data = get_reviews(title)
-    book=book.strip()
-    if len(data)==0:
-        percentage_emotions={}
+    book = book.strip()
+    if len(data) == 0:
+        percentage_emotions = {}
         return book, percentage_emotions
     else:
         data = data[data["reviews"].apply(detect_en)]

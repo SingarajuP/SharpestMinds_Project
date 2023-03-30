@@ -77,12 +77,12 @@ def get_title(data: request_body):
     if not title:
         error_messages.append("Error with title:")
         return Outputresponse(
-            returned_title=title,
-            run_time_in_secs=(time.time() - time_of_req),
-            error_code=error_code,
-            error_messages=error_messages,
-            predictions_tfidf=output_tfidf,
-            predictions_bert=output_bert,
+            returned_title = title,
+            run_time_in_secs = (time.time() - time_of_req),
+            error_code = error_code,
+            error_messages = error_messages,
+            predictions_tfidf = output_tfidf,
+            predictions_bert = output_bert,
         )
 
     tfidf_model = tfidf_lr_model()
@@ -92,12 +92,12 @@ def get_title(data: request_body):
     book, output_bert = classify_bert(title, trainer)
     error_code = 0
     return Outputresponse(
-        returned_title=book,
-        run_time_in_secs=(time.time() - time_of_req),
-        error_code=error_code,
-        error_messages=error_messages,
-        predictions_tfidf=output_tfidf,
-        predictions_bert=output_bert,
+        returned_title = book,
+        run_time_in_secs = (time.time() - time_of_req),
+        error_code = error_code,
+        error_messages = error_messages,
+        predictions_tfidf = output_tfidf,
+        predictions_bert = output_bert,
     )
 
 
@@ -106,7 +106,7 @@ def form_post(request: Request, title: str = Form(...)):
     """ To get result in html"""
     tfidf_model = tfidf_lr_model()
     book,result = classify_tfidf(title, tfidf_model)
-    final_result={"Book Title": book,"Predictions":result}
+    final_result = {"Book Title": book,"Predictions":result}
     return templates.TemplateResponse(
-        "form.html", context={"request": request, "result": final_result}
+        "form.html", context = {"request": request, "result": final_result}
     )
