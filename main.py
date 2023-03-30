@@ -4,6 +4,7 @@ import time
 from typing import List
 from pydantic import BaseModel
 from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from src.predict import classify_tfidf, classify_bert
 from src.utils import tfidf_lr_model, bert_finetune_model
@@ -18,10 +19,21 @@ app = FastAPI(
 templates = Jinja2Templates(directory="templates/")
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def read_form():
-    """ base form for html"""
-    return "please give the link http://127.0.0.1:8000/form"
+   """ base form for html"""
+   html_content = """
+       <html>
+           <head>
+               <title>Some HTML in here</title>
+           </head>
+           <body>
+               <h1>Welcome to this app</h1>
+               <p>Click <a href='http://127.0.0.1:8000/form'>here</a> to get started<p>
+           </body>
+       </html>
+       """
+   return HTMLResponse(content=html_content, status_code=200)
 
 
 class request_body(BaseModel):
@@ -34,6 +46,7 @@ class request_body(BaseModel):
 def form_post(request: Request):
     """ Form to get the title in html"""
     result = "Enter the book title"
+    
     return templates.TemplateResponse(
         "form.html", context={"request": request, "result": result}
     )
@@ -43,7 +56,7 @@ def form_post(request: Request):
 class Outputresponse(BaseModel):
     """output format"""
 
-    query: str
+    returned_title: str
     error_code: int
     error_messages: List[str]
     run_time_in_secs: float
@@ -64,26 +77,27 @@ def get_title(data: request_body):
     if not title:
         error_messages.append("Error with title:")
         return Outputresponse(
-            query=title,
-            run_time_in_secs=(time.time() - time_of_req),
-            error_code=error_code,
-            error_messages=error_messages,
-            predictions_tfidf=output_tfidf,
-            predictions_bert=output_bert,
+            returned_title = title,
+            run_time_in_secs = (time.time() - time_of_req),
+            error_code = error_code,
+            error_messages = error_messages,
+            predictions_tfidf = output_tfidf,
+            predictions_bert = output_bert,
         )
 
     tfidf_model = tfidf_lr_model()
-    output_tfidf = classify_tfidf(title, tfidf_model)
+    book, output_tfidf = classify_tfidf(title, tfidf_model)
+
     trainer = bert_finetune_model()
-    output_bert = classify_bert(title, trainer)
+    book, output_bert = classify_bert(title, trainer)
     error_code = 0
     return Outputresponse(
-        query=title,
-        run_time_in_secs=(time.time() - time_of_req),
-        error_code=error_code,
-        error_messages=error_messages,
-        predictions_tfidf=output_tfidf,
-        predictions_bert=output_bert,
+        returned_title = book,
+        run_time_in_secs = (time.time() - time_of_req),
+        error_code = error_code,
+        error_messages = error_messages,
+        predictions_tfidf = output_tfidf,
+        predictions_bert = output_bert,
     )
 
 
@@ -91,7 +105,8 @@ def get_title(data: request_body):
 def form_post(request: Request, title: str = Form(...)):
     """ To get result in html"""
     tfidf_model = tfidf_lr_model()
-    result = classify_tfidf(title, tfidf_model)
+    book,result = classify_tfidf(title, tfidf_model)
+    final_result = {"Book Title": book,"Predictions":result}
     return templates.TemplateResponse(
-        "form.html", context={"request": request, "result": result}
+        "form.html", context = {"request": request, "result": final_result}
     )

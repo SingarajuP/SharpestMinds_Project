@@ -8,6 +8,7 @@
 __pycache__/
 src/__pycache__/
 
+
 #Ignore models in the folder
 models/knn.pkl
 models/rf_basic.pkl
@@ -17,6 +18,8 @@ models/knn_sentiment_bert.pkl
 models/svm_neutral.pkl
 models/svm_sentiment_bert.pkl
 models/bert_finetuned_model2/
+
+#Ignore data in the folder
 
 data/raw/emotions_training.pkl
 data/raw/go_emotions_dataset.csv
