@@ -1,7 +1,6 @@
 """ preprocessing for prediction"""
 import re
 import time
-import logging
 from string import punctuation
 from bs4 import BeautifulSoup
 import requests
@@ -14,7 +13,6 @@ from transformers import AutoTokenizer
 from src.config import BASE_URL, BOOK_URL,MAX_RETRY
 from src.utils import tokenizer
 from typing import Tuple
-logger=logging.getLogger()
 
 def get_reviews(title : str) -> Tuple[str, pd.DataFrame]:
     """getting reviews from the book title as a dataframe"""
@@ -23,10 +21,7 @@ def get_reviews(title : str) -> Tuple[str, pd.DataFrame]:
     data = {"q": title}
     GOODREADS_URL = BOOK_URL
     while i <= MAX_RETRY:    
-        start_time = time.time()
         req = requests.get(GOODREADS_URL, params=data, timeout=60)
-        request_time = time.time() - start_time
-        logger.info("Time to get response for book title search from goodreads is :", request_time)
         book_soup = BeautifulSoup(req.text, "html.parser")
 
         titles = book_soup.find_all("a", class_="bookTitle")
@@ -37,10 +32,7 @@ def get_reviews(title : str) -> Tuple[str, pd.DataFrame]:
             link.append(bookname["href"])
         first_book = title[0]
         rev = BASE_URL + link[0]
-        start_time = time.time()
         rev_url = requests.get(rev, timeout=200)
-        request_time = time.time() - start_time
-        logger.info("Time to get response for reviews:", request_time)
         rev_soup = BeautifulSoup(rev_url.content, "html.parser")
         rev_list = []
         for x in rev_soup.find_all("section", {"class": "ReviewText"}):
