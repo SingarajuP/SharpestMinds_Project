@@ -13,7 +13,7 @@ from src.config import BASE_URL, BOOK_URL, MAX_RETRY
 from src.utils import tokenizer
 from typing import Tuple
 
-
+nltk.download('stopwords')
 def get_reviews(title: str) -> Tuple[str, pd.DataFrame]:
     """getting reviews from the book title as a dataframe"""
     i = 0
