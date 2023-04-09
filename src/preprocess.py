@@ -1,6 +1,5 @@
 """ preprocessing for prediction"""
 import re
-import time
 from string import punctuation
 from bs4 import BeautifulSoup
 import requests
@@ -10,17 +9,18 @@ import nltk
 import nltk.data
 from nltk.stem import WordNetLemmatizer
 from transformers import AutoTokenizer
-from src.config import BASE_URL, BOOK_URL,MAX_RETRY
+from src.config import BASE_URL, BOOK_URL, MAX_RETRY
 from src.utils import tokenizer
 from typing import Tuple
 
-def get_reviews(title : str) -> Tuple[str, pd.DataFrame]:
+
+def get_reviews(title: str) -> Tuple[str, pd.DataFrame]:
     """getting reviews from the book title as a dataframe"""
     i = 0
-    
+
     data = {"q": title}
     GOODREADS_URL = BOOK_URL
-    while i <= MAX_RETRY:    
+    while i <= MAX_RETRY:
         req = requests.get(GOODREADS_URL, params=data, timeout=60)
         book_soup = BeautifulSoup(req.text, "html.parser")
 
@@ -38,14 +38,14 @@ def get_reviews(title : str) -> Tuple[str, pd.DataFrame]:
         for x in rev_soup.find_all("section", {"class": "ReviewText"}):
             rev_list.append(x.text)
         df = pd.DataFrame(rev_list, columns=["reviews"])
-        if len(df)>0:
-            return first_book,df
+        if len(df) > 0:
+            return first_book, df
         else:
             i += 1
     return first_book, df
 
 
-def text_cleaning(text : str) -> str:
+def text_cleaning(text: str) -> str:
     """This function will change the text to lower case, remove tags,
     special characters,digits, punctuation and lemmatization"""
 
@@ -68,12 +68,14 @@ def text_cleaning(text : str) -> str:
     text = text.lower()
     return text
 
-def dataset_dict_bert(data : pd.DataFrame) -> dict:
+
+def dataset_dict_bert(data: pd.DataFrame) -> dict:
     """This function returns the dataset dictionary format required for BERT model to the input data"""
     dataset = datasets.Dataset.from_dict(data)
     return datasets.DatasetDict({"test": dataset})
 
-def tokenize_data(example : pd.DataFrame) -> AutoTokenizer:
+
+def tokenize_data(example: pd.DataFrame) -> AutoTokenizer:
     """This function returns the tokenized vectors for bert model"""
 
     return tokenizer(example["reviews"], truncation=True, padding="max_length")

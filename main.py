@@ -21,8 +21,8 @@ templates = Jinja2Templates(directory="templates/")
 
 @app.get("/", response_class=HTMLResponse)
 def read_form():
-   """ base form for html"""
-   html_content = """
+    """base form for html"""
+    html_content = """
        <html>
            <head>
                <title>Some HTML in here</title>
@@ -33,7 +33,7 @@ def read_form():
            </body>
        </html>
        """
-   return HTMLResponse(content=html_content, status_code=200)
+    return HTMLResponse(content=html_content, status_code=200)
 
 
 class request_body(BaseModel):
@@ -44,9 +44,9 @@ class request_body(BaseModel):
 
 @app.get("/form")
 def form_post(request: Request):
-    """ Form to get the title in html"""
+    """Form to get the title in html"""
     result = "Enter the book title"
-    
+
     return templates.TemplateResponse(
         "form.html", context={"request": request, "result": result}
     )
@@ -66,7 +66,7 @@ class Outputresponse(BaseModel):
 
 @app.post("/predict")
 def get_title(data: request_body):
-    """ Main program to get the prediction"""
+    """Main program to get the prediction"""
     title = data.query
     time_of_req = time.time()
     error_code = 1
@@ -77,12 +77,12 @@ def get_title(data: request_body):
     if not title:
         error_messages.append("Error with title:")
         return Outputresponse(
-            returned_title = title,
-            run_time_in_secs = (time.time() - time_of_req),
-            error_code = error_code,
-            error_messages = error_messages,
-            predictions_tfidf = output_tfidf,
-            predictions_bert = output_bert,
+            returned_title=title,
+            run_time_in_secs=(time.time() - time_of_req),
+            error_code=error_code,
+            error_messages=error_messages,
+            predictions_tfidf=output_tfidf,
+            predictions_bert=output_bert,
         )
 
     tfidf_model = tfidf_lr_model()
@@ -92,21 +92,21 @@ def get_title(data: request_body):
     book, output_bert = classify_bert(title, trainer)
     error_code = 0
     return Outputresponse(
-        returned_title = book,
-        run_time_in_secs = (time.time() - time_of_req),
-        error_code = error_code,
-        error_messages = error_messages,
-        predictions_tfidf = output_tfidf,
-        predictions_bert = output_bert,
+        returned_title=book,
+        run_time_in_secs=(time.time() - time_of_req),
+        error_code=error_code,
+        error_messages=error_messages,
+        predictions_tfidf=output_tfidf,
+        predictions_bert=output_bert,
     )
 
 
 @app.post("/form")
 def form_post(request: Request, title: str = Form(...)):
-    """ To get result in html"""
+    """To get result in html"""
     tfidf_model = tfidf_lr_model()
-    book,result = classify_tfidf(title, tfidf_model)
-    final_result = {"Book Title": book,"Predictions":result}
+    book, result = classify_tfidf(title, tfidf_model)
+    final_result = {"Book Title": book, "Predictions": result}
     return templates.TemplateResponse(
-        "form.html", context = {"request": request, "result": final_result}
+        "form.html", context={"request": request, "result": final_result}
     )
