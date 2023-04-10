@@ -1,4 +1,6 @@
 # Goodreads Review Analyzer
+The deployed app can be accessed in the link below.
+<br />[Goodreads review analyzer](https://singarajup-goodreads-reviewanalyzer-streamlitapp-7o4daj.streamlit.app/)
 
 ## Overview
 Reading books is a recreational activity. Based on the reviews for the selected book this app will show the percentage of emotions hidden behind the reviews by the customers who read the same book. 
