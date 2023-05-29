@@ -21,7 +21,7 @@ While there is no data for books with labels for the emotions, the approach we f
 ## Usage
 Clone repo 
 ```bash
- git clone https://github.com/SingarajuP/sharpestminds-project.git
+ git clone https://github.com/SingarajuP/goodreads-reviewanalyzer.git
 ```
 <br />Setup a virtual environment
 ```bash
